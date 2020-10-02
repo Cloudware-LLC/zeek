@@ -125,6 +125,7 @@ public:
 		}
 
 	const char* GetKey() const { return key_size <= 8 ? key_here : key; }
+	detail::HashKey* GetHashKey() const { return new detail::HashKey(GetKey(), key_size, hash); }
 
 	bool Equal(const char* arg_key, int arg_key_size, hash_t arg_hash) const
 		{//only 40-bit hash comparison.
@@ -295,8 +296,11 @@ public:
 	//
 	// If return_hash is true, a HashKey for the entry is returned in h,
 	// which should be delete'd when no longer needed.
+	[[deprecated("Remove in v5.1. Use the standard-library-compatible version of iteration.")]]
 	IterCookie* InitForIteration() const;
+	[[deprecated("Remove in v5.1. Use the standard-library-compatible version of iteration.")]]
 	void* NextEntry(detail::HashKey*& h, IterCookie*& cookie, bool return_hash) const;
+	[[deprecated("Remove in v5.1. Use the standard-library-compatible version of iteration.")]]
 	void StopIteration(IterCookie* cookie) const;
 
 	void SetDeleteFunc(dict_delete_func f)		{ delete_func = f; }
@@ -307,6 +311,7 @@ public:
 	// and (ii) we won't visit any still-unseen entries which are getting
 	// removed. (We don't get this for free, so only use it if
 	// necessary.)
+	[[deprecated("Remove in v5.1. Use the standard-library-compatible version of iteration.")]]
 	void MakeRobustCookie(IterCookie* cookie);
 
 	// Remove all entries.
@@ -337,6 +342,9 @@ public:
 	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 	iterator begin() { return { this, table, table + Capacity() }; }
+	// TODO: this should probably be stored as a member somewhere instead of remaking it every
+	// time this method is called during a loop. Perhaps initialize it when one of the begin()
+	// methods is called.
 	iterator end() { return { this, table + Capacity(), table + Capacity() }; }
 	const_iterator begin() const { return { this, table, table + Capacity() }; }
 	const_iterator end() const { return { this, table + Capacity(), table + Capacity() }; }
@@ -511,11 +519,13 @@ public:
 		int key_len;
 		return (T*) Dictionary::NthEntry(n, (const void*&) key, key_len);
 		}
+	[[deprecated("Remove in v5.1. Use the standard-library-compatible version of iteration.")]]
 	T* NextEntry(IterCookie*& cookie) const
 		{
 		detail::HashKey* h;
 		return (T*) Dictionary::NextEntry(h, cookie, false);
 		}
+	[[deprecated("Remove in v5.1. Use the standard-library-compatible version of iteration.")]]
 	T* NextEntry(detail::HashKey*& h, IterCookie*& cookie) const
 		{ return (T*) Dictionary::NextEntry(h, cookie, true); }
 	T* RemoveEntry(const detail::HashKey* key)

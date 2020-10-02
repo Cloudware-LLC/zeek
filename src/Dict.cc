@@ -25,7 +25,7 @@
 
 namespace zeek {
 
-class IterCookie {
+class [[deprecated("Remove in v5.1. Use the standard-library-compatible version of iteration.")]] IterCookie {
 public:
 	IterCookie(Dictionary* d) : d(d) {}
 
